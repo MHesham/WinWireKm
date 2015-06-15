@@ -1,0 +1,90 @@
+;
+; WinWireKm.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=WinWireKm
+ClassGuid={B27EDA32-1A46-4708-9267-5EC40BAEA6F0}
+Provider=%ManufacturerName%
+CatalogFile=WinWireKm.cat
+DriverVer=
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=WinWireKmClassReg
+
+[WinWireKmClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+WinWireKm.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%WinWireKm.DeviceDesc%=WinWireKm_Device, Root\WinWireKm
+
+[WinWireKm_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+WinWireKm.sys
+
+;-------------- Service installation
+[WinWireKm_Device.NT.Services]
+AddService = WinWireKm,%SPSVCINST_ASSOCSERVICE%, WinWireKm_Service_Inst
+
+; -------------- WinWireKm driver install sections
+[WinWireKm_Service_Inst]
+DisplayName    = %WinWireKm.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\WinWireKm.sys
+
+;
+;--- WinWireKm_Device Coinstaller installation ------
+;
+
+[DestinationDirs]
+WinWireKm_Device_CoInstaller_CopyFiles = 11
+
+[WinWireKm_Device.NT.CoInstallers]
+AddReg=WinWireKm_Device_CoInstaller_AddReg
+CopyFiles=WinWireKm_Device_CoInstaller_CopyFiles
+
+[WinWireKm_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[WinWireKm_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[SourceDisksFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+[WinWireKm_Device.NT.Wdf]
+KmdfService =  WinWireKm, WinWireKm_wdfsect
+[WinWireKm_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Muahmad Lotfy"
+ClassName="WinWireKm"
+DiskName = "WinWireKm Installation Disk"
+WinWireKm.DeviceDesc = "WinWireKm Device"
+WinWireKm.SVCDESC = "WinWireKm Service"
